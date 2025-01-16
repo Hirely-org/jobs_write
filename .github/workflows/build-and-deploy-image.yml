@@ -38,7 +38,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         env:
-          IMG_NAME: ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-write-job-api
+          IMG_NAME: ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}write-job-api
         with:
           context: .
           push: true
