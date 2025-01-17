@@ -23,6 +23,13 @@ router.get('/test', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { name, description, status, imageId } = req.body;
+
+    const userRole = req.headers['x-Forwarded-Role'];
+
+    if(userRole !== 'admin'){
+        return res.status(403).send('Forbidden');
+    }
+
     let job;
     try{
         job = await db.Job.create({
