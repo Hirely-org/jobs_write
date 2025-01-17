@@ -23,8 +23,8 @@ router.get('/test', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { name, description, status, imageId } = req.body;
-    console.log('Headers:', req.headers['X-Forwarded-Role']);
     const userRole = req.headers['X-Forwarded-Role'];
+    console.log('Headers:', userRole);
     console.log('User role:', userRole);
 
     if(userRole !== 'Admin'){
