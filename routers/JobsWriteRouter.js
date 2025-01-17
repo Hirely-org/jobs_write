@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 
     const userRole = req.headers['x-Forwarded-Role'];
 
-    if(userRole !== 'admin'){
+    if(userRole !== 'Admin'){
         return res.status(403).send('Forbidden');
     }
 
