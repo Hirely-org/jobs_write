@@ -9,7 +9,7 @@ const port = 5000;
 
 const jobWriteRouter = require('./routers/JobsWriteRouter');
 
-app.use(cors());
+app.options('*', cors()); // before your routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/jobWrite", jobWriteRouter);
