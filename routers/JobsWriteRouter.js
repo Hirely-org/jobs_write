@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
     console.log('Headers:', req.headers);
     console.log('User role:', userRole);
 
-    if(userRole !== 'Admin' || 'Employer'){
+    if(!["Admin", "Employer"].includes(userRole)){
         return res.status(403).send('Forbidden');
     }
 
