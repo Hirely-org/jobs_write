@@ -23,13 +23,13 @@ router.get('/test', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { name, description, status, imageId } = req.body;
-    const userRole = req.headers['X-Forwarded-Role'];
-    console.log('Headers:', userRole);
+    const userRole = req.headers['x-forwarded-role'];
+    console.log('Headers:', req.headers);
     console.log('User role:', userRole);
 
-    // if(userRole !== 'Admin'){
-    //     return res.status(403).send('Forbidden');
-    // }
+    if(userRole !== 'Admin' || 'Employer'){
+        return res.status(403).send('Forbidden');
+    }
 
     let job;
     try{
