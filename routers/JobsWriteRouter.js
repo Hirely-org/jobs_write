@@ -2,7 +2,7 @@ const router = require('express').Router();
 const RabbitMQService = require('../rabbitMQService');
 const db = require('../models');
 const upload = require('../utils/fileUpload');
-const s3Service = require('../S3Service');
+const s3Service = require('../config/s3Config');
 
 router.get('/', async (req, res) => {
     let jobs;
