@@ -27,9 +27,9 @@ router.post('/', async (req, res) => {
     console.log('Headers:', userRole);
     console.log('User role:', userRole);
 
-    if(userRole !== 'Admin'){
-        return res.status(403).send('Forbidden');
-    }
+    // if(userRole !== 'Admin'){
+    //     return res.status(403).send('Forbidden');
+    // }
 
     let job;
     try{
