@@ -18,7 +18,7 @@ const corsOptions = {
 };
 app.options('*', cors(corsOptions));
 
-// Apply CORS to all routes
+// Apply CORS to all routese
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
