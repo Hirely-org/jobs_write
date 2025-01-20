@@ -1,7 +1,7 @@
 const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { v4: uuidv4 } = require('uuid');
-const s3Client = require('../config/s3Config');
+const s3Client = require('./config/s3Config');
 
 class S3Service {
     async uploadImage(file) {
@@ -10,8 +10,8 @@ class S3Service {
             const imageKey = `${uuidv4()}.${fileExtension}`;
 
             await s3Client.send(new PutObjectCommand({
-                Bucket: process.env.AWS_S3_BUCKET,
-                Key: `original/${imageKey}`,
+                Bucket: process.env.AWS_S3_BUCKET, // hirely-job-image-bucket
+                Key: imageKey,
                 Body: file.buffer,
                 ContentType: file.mimetype,
             }));
@@ -23,13 +23,17 @@ class S3Service {
         }
     }
 
-    async getSignedImageUrl(imageKey) {
+    async getSignedImageUrl(imageKey, type = 'processed') {
         if (!imageKey) return null;
         
         try {
+            const bucket = type === 'processed' 
+                ? process.env.AWS_S3_BUCKET_PROCESSED // hirely-job-image-bucket-processed
+                : process.env.AWS_S3_BUCKET; // hirely-job-image-bucket
+
             const command = new GetObjectCommand({
-                Bucket: process.env.AWS_S3_BUCKET,
-                Key: `original/${imageKey}`,
+                Bucket: bucket,
+                Key: imageKey,
             });
 
             return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
@@ -39,5 +43,3 @@ class S3Service {
         }
     }
 }
-
-module.exports = new S3Service();

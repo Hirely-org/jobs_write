@@ -52,46 +52,49 @@ router.post('/', async (req, res) => {
 });
 
 
-// router.post('/', upload.single('image'), async (req, res) => {
-//     const { name, description, status } = req.body;
-//     const userRole = req.headers['x-forwarded-role'];
+router.post('/', upload.single('image'), async (req, res) => {
+    const { name, description, status } = req.body;
+    const userRole = req.headers['x-forwarded-role'];
 
-//     if (!["Admin", "Employer"].includes(userRole)) {
-//         return res.status(403).send('Forbidden');
-//     }
+    if (!["Admin", "Employer"].includes(userRole)) {
+        return res.status(403).send('Forbidden');
+    }
 
-//     try {
-//         // Handle image upload if present
-//         let imageKey = null;
-//         if (req.file) {
-//             imageKey = await s3Service.uploadImage(req.file);
-//         }
+    try {
+        // Handle image upload if present
+        let imageKey = null;
+        if (req.file) {
+            imageKey = await s3Service.uploadImage(req.file);
+        }
 
-//         // Create job in database
-//         const job = await db.Job.create({
-//             name,
-//             description,
-//             status,
-//             imageKey,
-//             createdAt: new Date()
-//         });
+        // Create job in database
+        const job = await db.Job.create({
+            name,
+            description,
+            status,
+            imageKey,
+            createdAt: new Date()
+        });
 
-//         // Get signed URL for response
-//         const imageUrl = await s3Service.getSignedImageUrl(imageKey);
-//         const jobResponse = {
-//             ...job.toJSON(),
-//             imageUrl
-//         };
-
-//         console.log('Created job:', job.name);
-//         RabbitMQService.sendToQueue("q_a", Buffer.from(JSON.stringify(job)));
+        // Get signed URLs for both original and processed images
+        const originalImageUrl = await s3Service.getSignedImageUrl(imageKey, 'original');
+        const processedImageUrl = await s3Service.getSignedImageUrl(imageKey, 'processed');
         
-//         return res.json(jobResponse);
+        const jobResponse = {
+            ...job.toJSON(),
+            originalImageUrl,
+            processedImageUrl
+        };
 
-//     } catch (error) {
-//         console.error('Error creating job:', error);
-//         return res.status(500).send('Error creating job');
-//     }
-// });
+        console.log('Created job:', job.name);
+        RabbitMQService.sendToQueue("q_a", Buffer.from(JSON.stringify(job)));
+        
+        return res.json(jobResponse);
+
+    } catch (error) {
+        console.error('Error creating job:', error);
+        return res.status(500).send('Error creating job');
+    }
+});
 
 module.exports = router;
