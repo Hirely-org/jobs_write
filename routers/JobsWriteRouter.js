@@ -37,13 +37,13 @@ router.post('/', upload.single('image'), async (req, res) => {
         if (req.file) {
             imageKey = await s3Service.uploadImage(req.file);
         }
-
+        console.log('Image key:', imageKey);
         // Create job in database
         const job = await db.Job.create({
             name,
             description,
             status,
-            imageKey,
+            imageId: imageKey,
             createdAt: new Date()
         });
 
