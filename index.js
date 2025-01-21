@@ -9,17 +9,11 @@ const port = 5000;
 
 const jobWriteRouter = require('./routers/JobsWriteRouter');
 
-const corsOptions = {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Forwarded-Role', 'X-Forwarded-User'],
-    exposedHeaders: ['X-Forwarded-Role', 'X-Forwarded-User'],
-    credentials: false
-};
-app.options('*', cors(corsOptions));
-
-// Apply CORS to all routese
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+    exposedHeaders: ['X-Forwarded-Role', 'X-Forwarded-User']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/jobWrite", jobWriteRouter);
