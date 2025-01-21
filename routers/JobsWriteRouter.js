@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const RabbitMQService = require('../rabbitMQService');
 const db = require('../models');
-const upload = require('../utils/fileUpload');
+const upload = require('../middleware/fileUpload');
 const s3Service = require('../S3Service')
 
 router.get('/', async (req, res) => {
@@ -22,35 +22,6 @@ router.get('/test', async (req, res) => {
     RabbitMQService.sendToQueue("q_b", "Hello from service A!");
     return res.send('Hello World!');
 });
-
-// router.post('/', async (req, res) => {
-//     const { name, description, status, imageId } = req.body;
-//     const userRole = req.headers['x-forwarded-role'];
-//     console.log('Headers:', req.headers);
-//     console.log('User role:', userRole);
-
-//     if(!["Admin", "Employer"].includes(userRole)){
-//         return res.status(403).send('Forbidden');
-//     }
-
-//     let job;
-//     try{
-//         job = await db.Job.create({
-//             name,
-//             description,
-//             status,
-//             imageId,
-//             createdAt: new Date()
-//         });
-//     } catch(error){
-//         console.error('Error creating job:', error);
-//         return res.status(500).send('Error creating job');
-//     }
-//     console.log('Created job:', job.name);
-//     RabbitMQService.sendToQueue("q_a", Buffer.from(JSON.stringify(job)));
-//     return res.json(job);
-// });
-
 
 router.post('/', upload.single('image'), async (req, res) => {
     const { name, description, status } = req.body;
@@ -93,7 +64,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 
     } catch (error) {
         console.error('Error creating job:', error);
-        return res.status(500).send('Error creating job');
+        return res.status(500).send('Error creating job', error);
     }
 });
 
