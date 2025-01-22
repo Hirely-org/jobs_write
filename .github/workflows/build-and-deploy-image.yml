@@ -1,35 +1,49 @@
-name: Build and Push Docker Image
+name: Build and Deploy Users API
 
 on:
   push:
     branches:
-      - main  # Adjust branch as needed
+      - main
+
+env:
+  IMG_NAME: veljkoskrbic/hirely-job-write-api
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Get a short SHA for the commit
       - name: Get short SHA
         uses: benjlevesque/short-sha@v3.0
         id: short-sha
 
-      # Step 3: Log in to Docker Hub
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_NAME }}
-          password: ${{ secrets.DOCKERHUB_PASS }}
+          username: veljkoskrbic
+          password: ${{secrets.DOCKERHUB_PASS}}
 
-      # Step 4: Build and push Docker image
       - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{env.IMG_NAME}}:${{steps.short-sha.outputs.sha}}
+            ${{env.IMG_NAME}}:latest
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_DEFAULT_REGION }}
+
+      - name: Deploy to EKS
         run: |
-          docker build -t ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-job-write-api:${{ steps.short-sha.outputs.sha }} .
-          docker tag ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-job-write-api:${{ steps.short-sha.outputs.sha }} ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-job-write-api:latest
-          docker push ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-job-write-api:${{ steps.short-sha.outputs.sha }}
-          docker push ${{ vars.DOCKERHUB_IMAGE_NAME }}/${{ vars.DOCKERHUB_IMG_PREFIX }}-job-write-api:latest
+          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name ${{ vars.AWS_EKS_CLUSTER_NAME }}
+          kubectl set image deployment/job-write-deployment job-write=${{env.IMG_NAME}}:${{steps.short-sha.outputs.sha}}
+          kubectl rollout status deployment/job-write-deployment
+
