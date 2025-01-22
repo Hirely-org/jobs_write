@@ -23,25 +23,25 @@ class S3Service {
         }
     }
 
-    // async getSignedImageUrl(imageKey, type = 'processed') {
-    //     if (!imageKey) return null;
+    async getSignedImageUrl(imageKey, type = 'processed') {
+        if (!imageKey) return null;
         
-    //     try {
-    //         const bucket = type === 'processed' 
-    //             ? process.env.AWS_S3_BUCKET_PROCESSED // hirely-job-image-bucket-processed
-    //             : process.env.AWS_S3_BUCKET; // hirely-job-image-bucket
+        try {
+            const bucket = type === 'processed' 
+                ? process.env.AWS_S3_BUCKET_PROCESSED // hirely-job-image-bucket-processed
+                : process.env.AWS_S3_BUCKET; // hirely-job-image-bucket
 
-    //         const command = new GetObjectCommand({
-    //             Bucket: bucket,
-    //             Key: imageKey,
-    //         });
+            const command = new GetObjectCommand({
+                Bucket: bucket,
+                Key: imageKey,
+            });
 
-    //         return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-    //     } catch (error) {
-    //         console.error('Error generating signed URL:', error);
-    //         return null;
-    //     }
-    // }
+            return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        } catch (error) {
+            console.error('Error generating signed URL:', error);
+            return null;
+        }
+    }
 }
 
 module.exports = new S3Service();
