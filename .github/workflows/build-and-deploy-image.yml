@@ -1,4 +1,4 @@
-name: Build and Deploy Users API
+name: Build and Deploy Job Write API
 
 on:
   push:
@@ -44,6 +44,6 @@ jobs:
       - name: Deploy to EKS
         run: |
           aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name ${{ vars.AWS_EKS_CLUSTER_NAME }}
-          kubectl set image deployment/job-write-deployment job-write=${{env.IMG_NAME}}:${{steps.short-sha.outputs.sha}}
-          kubectl rollout status deployment/job-write-deployment
+          kubectl set image deployment/job-write-api-deployment job-write-api=${{env.IMG_NAME}}:${{steps.short-sha.outputs.sha}}
+          kubectl rollout status deployment/job-write-api-deployment
 
